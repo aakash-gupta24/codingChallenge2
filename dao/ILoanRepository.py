@@ -6,6 +6,14 @@ class ILoanRepository(ABC):
         pass
 
     @abstractmethod
+    def is_valid_email(self,email):
+        pass
+    
+    @abstractmethod
+    def is_valid_password(self,password):
+        pass
+
+    @abstractmethod
     def loanStatus(self,loan_id):
         pass
 

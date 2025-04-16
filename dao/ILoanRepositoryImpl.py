@@ -3,7 +3,9 @@ from util.DBPropertyUtil import DBPropertyUtil
 from util.DBConnUtil import DBConnUtil
 from exception.InvalidLoanException import InvalidLoanException
 from exception.invalidOption import invalidOption
+from exception.invalidData import invalidData
 import math
+import re
 class ILoanRepositoryImpl(ILoanRepository):
     def __init__(self):
         self.Logged_id=None
@@ -13,31 +15,60 @@ class ILoanRepositoryImpl(ILoanRepository):
         if self.connection:
             self.cursor = self.connection.cursor()
     def create_customer_login(self,name,email,password):
-        self.cursor.execute("select count(*) from loginCustomer where email=?",email)
-        check=self.cursor.fetchone()
-        if(check[0]==1):
-            print(f"Customer already exist with email {email}")
+        try:
+            self.cursor.execute("select count(*) from loginCustomer where email=?",email)
+            check=self.cursor.fetchone()
+            if(check[0]==1):
+                print(f"Customer already exist with email {email}")
+                return None
+            else:
+                if(self.is_valid_email(email) and self.is_valid_password(password)):
+                    self.cursor.execute("insert into loginCustomer values(?,?,?)",name,email,password)
+                    self.connection.commit()
+                    self.cursor.execute("select customer_id from loginCustomer where email=?",email)
+                    return self.cursor.fetchone()[0]
+                else:
+                    if(not self.is_valid_email(email)):
+                        raise invalidData("\nError -> Enter valid email")
+                    elif(not self.is_valid_password(password)):
+                        raise invalidData("\nError -> Enter a valid password (atleast 8 length)")
+                    else:
+                        raise invalidData("\nError -> Enter a valid email and password")
+        except invalidData as e:
+            print(e)
             return None
-        else:
-            self.cursor.execute("insert into loginCustomer values(?,?,?)",name,email,password)
-            self.connection.commit()
-            self.cursor.execute("select customer_id from loginCustomer where email=?",email)
-            return self.cursor.fetchone()[0]
-        
+    def is_valid_email(self,email):
+        __pattern = r'^[\w\.-]+@[\w\.-]+\.\w{2,}$'
+        return re.match(__pattern, email) is not None
+    def is_valid_password(self,password):
+        __pattern=r'^[\w\.-]{8,}$'
+        return re.match(__pattern, password) is not None
     def create_customer(self,customer):
-        self.cursor.execute("insert into Customer values(?,?,?,?,?)",customer.get_name(),customer.get_email_address(),customer.get_phone_number(),customer.get_address(),customer.get_credit_score())
-        self.connection.commit()
-        print("\nCustomer created successfully")
+        try:
+            if(self.is_valid_email(customer.get_email_address())):
+                self.cursor.execute("insert into Customer values(?,?,?,?,?)",customer.get_name(),customer.get_email_address(),customer.get_phone_number(),customer.get_address(),customer.get_credit_score())
+                self.connection.commit()
+                print("\nCustomer created successfully")
+            else:
+                raise invalidData("\nemail is not valid")
+        except invalidData as e:
+            print(e)
+            return None
 
     def login(self):
-        name=input("Enter the name :")
-        pas=input("Enter the password :")
-        self.cursor.execute("select count(*) from loginCustomer where name=? and password=?",name,pas)
-        check=self.cursor.fetchone()
-        if(check[0]==1):
-            self.cursor.execute("select customer_id from loginCustomer where name=? and password=?",name,pas)
-            self.Logged_id=self.cursor.fetchone()[0]
-            print("\nLogged in\n")
+        try:
+            name=input("Enter the name :")
+            pas=input("Enter the password :")
+            self.cursor.execute("select count(*) from loginCustomer where name=? and password=?",name,pas)
+            check=self.cursor.fetchone()
+            if(check[0]==1):
+                self.cursor.execute("select customer_id from loginCustomer where name=? and password=?",name,pas)
+                self.Logged_id=self.cursor.fetchone()[0]
+                print("\nLogged in\n")
+            else:
+                print("Account not found!!!")
+        except Exception as e:
+            print("Error -> ",e)
     
     def logout(self):
         self.Logged_id=None
