@@ -1,6 +1,7 @@
 from dao.ILoanRepositoryImpl import ILoanRepositoryImpl
 from entity import *
-from exception import invalidOption
+from exception.invalidOption import invalidOption
+from exception.invalidData import invalidData
 class LoanManagement():
     def __init__(self):
         self.processor=ILoanRepositoryImpl()
@@ -9,7 +10,11 @@ class LoanManagement():
             try:
                 name=input("Enter customer name :").strip()
                 email=input("Enter email of customer :").strip()
+                if(not self.processor.is_valid_email(email)):
+                    raise invalidData("Enter valid a email")
                 password=input("Enter the password (8 characters long):").strip()
+                if(not self.processor.is_valid_password(password)):
+                    raise invalidData("Enter a valid password (atleast 8 length)")
                 phone_number=input("Enter phone number :")
                 address=input("Enter the address :")
                 credit_score=int(input("Enter your credit score : "))
@@ -18,7 +23,7 @@ class LoanManagement():
                 if(id!=None):
                     self.processor.create_customer(customer)
             except Exception as e:
-                print("Error occured : ",e)
+                print("Error occured -> ",e)
     def apply_loan(self):
         try:
             principal_amount=int(input("Enter the principal amount : "))
