@@ -35,22 +35,34 @@ class LoanManagement():
         except Exception as e:
             print("Enter a valid data", e)
     def calculateInterest(self):
-        loan_id=int(input("Enter the loan id :"))
-        print("Intrest :",self.processor.calculateInterest(loan_id))
+        try:
+            loan_id=int(input("Enter the loan id :"))
+            print("Intrest :",self.processor.calculateInterest(loan_id))
+        except Exception as e:
+            print("\n Error -> Enter valid data\n")
     def calculateEMI(self):
-        loan_id=int(input("Enter the loan id :"))
-        print("Intrest :",self.processor.calculateEMI(loan_id))
+        try:
+            loan_id=int(input("Enter the loan id :"))
+            print("Intrest :",self.processor.calculateEMI(loan_id))
+        except Exception as e:
+            print("\n Error -> Enter valid data\n")
     def loanStatus(self):
         self.processor.loanStatus()
     def loanRepayment(self):
-        loan_id=int(input("Enter the loan id :"))
-        amount=int(input("Enter the amount :"))
-        self.processor.loanRepayment(loan_id,amount)
+        try:
+            loan_id=int(input("Enter the loan id :"))
+            amount=int(input("Enter the amount :"))
+            self.processor.loanRepayment(loan_id,amount)
+        except Exception as e:
+            print("\n Error -> Enter valid data\n")
     def getAllLoan(self):
         self.processor.getAllLoan()
     def getLoan(self):
-        loan_id=int(input("Enter the loan id :"))
-        self.processor.getLoanById(loan_id)
+        try:
+            loan_id=int(input("Enter the loan id :"))
+            self.processor.getLoanById(loan_id)
+        except Exception as e:
+            print("\n Error -> Enter valid data\n")
     def login(self):
         self.processor.login()
     def logout(self):
