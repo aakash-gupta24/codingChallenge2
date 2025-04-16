@@ -140,6 +140,10 @@ class ILoanRepositoryImpl(ILoanRepository):
     
     def loanRepayment(self,loan_id, amount):
         try:
+            self.cursor.execute("select loan_status from Loan where loan_id = ?", loan_id)
+            if(self.cursor.fetchone()[0]=="Rejected"):
+                print("\nloan is rejected which cannot be paid....\n")
+                return 1
             self.cursor.execute("select principal_amount, interest_rate, loan_term from Loan where loan_id = ?", loan_id)
             row = self.cursor.fetchone()
 
@@ -157,7 +161,7 @@ class ILoanRepositoryImpl(ILoanRepository):
             emi = round(emi, 2)
 
             if amount < emi:
-                print(f"Payment rejected. Amount {amount} is less than EMI {emi}.")
+                print(f"\nPayment rejected. Amount {amount} is less than EMI {emi}.")
                 return
 
             no_of_emis_paid = math.floor(amount / emi)
