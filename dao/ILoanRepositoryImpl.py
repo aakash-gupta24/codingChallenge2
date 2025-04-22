@@ -73,6 +73,7 @@ class ILoanRepositoryImpl(ILoanRepository):
     def logout(self):
         self.Logged_id=None
         print("\nLogged out\n")
+        
     def applyLoan(self,loan):
         if(self.Logged_id==None):
             print("Login before applying for loan")
@@ -283,5 +284,5 @@ class ILoanRepositoryImpl(ILoanRepository):
             return 1
 
         except Exception as e:
-            print("Error fetching loans:", e)
+            print("Error -> Enter a valid loan id")
             return []
